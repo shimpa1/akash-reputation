@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reputation-web
+  namespace: reputation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reputation-web
+  template:
+    metadata:
+      labels:
+        app: reputation-web
+    spec:
+      containers:
+        - name: web
+          image: shimpa/akash-reputation-web:0.1.0
+          imagePullPolicy: IfNotPresent # pinned immutable tag; bump the tag to roll
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reputation-web
+  namespace: reputation
+spec:
+  selector:
+    app: reputation-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
