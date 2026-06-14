@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reputation
+  namespace: reputation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reputation
+  template:
+    metadata:
+      labels:
+        app: reputation
+    spec:
+      containers:
+        - name: reputation
+          image: shimpa/akash-reputation:0.1.0
+          imagePullPolicy: IfNotPresent # pinned immutable tag; bump the tag to roll
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: reputation-config
+          env:
+            # DB credentials reused from the postgres secret; the app assembles
+            # the DSN from these plus PGHOST/PGPORT in the ConfigMap.
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: reputation-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: reputation-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: reputation-postgres-secret
+                  key: POSTGRES_DB
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reputation
+  namespace: reputation
+spec:
+  selector:
+    app: reputation
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
