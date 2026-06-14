@@ -131,6 +131,9 @@ go install github.com/shimpa1/akash-reputation/cmd/repute-sign@latest
 
 (Or build it from a clone: `go build -o repute-sign ./cmd/repute-sign`.)
 
+For the full `repute-sign` reference — build options, every flag, how the key is
+read, and more examples — see **[repute-sign.md](repute-sign.md)**.
+
 ### Step 3 — sign and submit your rating
 
 `repute-sign` signs the rating with your key and sends it. Your key is read once

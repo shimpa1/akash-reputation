@@ -21,14 +21,16 @@ and independently verifiable.
 
 > **Just want to use it?** See the end-user guide: **[docs/USAGE.md](docs/USAGE.md)**
 > — how to look up a provider's/client's reputation and how to leave a signed
-> rating. The rest of this README is for running/operating the service.
+> rating. To build and use the signer specifically, see
+> **[docs/repute-sign.md](docs/repute-sign.md)**. The rest of this README is for
+> running/operating the service.
 
 ## Layout
 
 | Path | What |
 | ---- | ---- |
 | `cmd/reputation` | the HTTP API server |
-| `cmd/repute-sign` | the signing CLI |
+| `cmd/repute-sign` | the signing CLI ([docs](docs/repute-sign.md)) |
 | `internal/adr036` | canonical message + ADR-036 sign/verify + akash address derivation (shared by server & CLI) |
 | `internal/store` | PostgreSQL store, schema, aggregate queries |
 | `internal/leases` | background poller that ingests on-chain leases |
