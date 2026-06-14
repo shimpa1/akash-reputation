@@ -19,6 +19,10 @@ only when the two parties actually had a lease on-chain.
 Reputation is kept off-chain (no gas); the signatures make each entry portable
 and independently verifiable.
 
+> **Just want to use it?** See the end-user guide: **[docs/USAGE.md](docs/USAGE.md)**
+> — how to look up a provider's/client's reputation and how to leave a signed
+> rating. The rest of this README is for running/operating the service.
+
 ## Layout
 
 | Path | What |
