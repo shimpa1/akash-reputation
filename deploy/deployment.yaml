@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: reputation
-          image: shimpa/akash-reputation:0.1.0
+          image: shimpa/akash-reputation:0.2.0
           imagePullPolicy: IfNotPresent # pinned immutable tag; bump the tag to roll
           ports:
             - containerPort: 8080

@@ -24,17 +24,29 @@ type Server struct {
 	Store    *store.Store
 	Verifier LeaseVerifier
 	Log      *slog.Logger
+	Provider string // this instance's provider address (anchors ratings)
+	ChainID  string // chain id wallets should use for signing, e.g. akashnet-2
 }
 
 // Routes returns the configured HTTP handler.
 func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", s.handleHealth)
+	mux.HandleFunc("GET /info", s.handleInfo)
 	mux.HandleFunc("POST /feedback", s.handlePostFeedback)
 	mux.HandleFunc("GET /feedback", s.handleListFeedback)
 	mux.HandleFunc("GET /reputation/{address}", s.handleReputation)
 	mux.HandleFunc("GET /leases", s.handleListLeases)
 	return mux
+}
+
+// handleInfo exposes this instance's provider address and chain id so a generic
+// frontend can configure itself without baking in instance values at build time.
+func (s *Server) handleInfo(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{
+		"provider": s.Provider,
+		"chain_id": s.ChainID,
+	})
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {

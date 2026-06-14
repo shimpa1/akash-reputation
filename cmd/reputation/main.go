@@ -24,6 +24,7 @@ func main() {
 	dsn := resolveDSN(log)
 	listen := envOr("LISTEN_ADDR", ":8080")
 	provider := mustEnv(log, "PROVIDER_ADDR")
+	chainID := envOr("CHAIN_ID", "akashnet-2")
 	node := os.Getenv("AKASH_NODE")
 	bin := envOr("PROVIDER_SERVICES_BIN", "provider-services")
 	interval := envDuration(log, "LEASE_SYNC_INTERVAL", 10*time.Minute)
@@ -46,7 +47,7 @@ func main() {
 	}, st, log)
 	go poller.Run(ctx)
 
-	srv := &api.Server{Store: st, Verifier: poller, Log: log}
+	srv := &api.Server{Store: st, Verifier: poller, Log: log, Provider: provider, ChainID: chainID}
 	httpSrv := &http.Server{
 		Addr:              listen,
 		Handler:           srv.Routes(),
