@@ -1,0 +1,19 @@
+# Example config — copy, set your provider address and akash node, and apply
+# (or keep your real values in a private overlay; do not commit them here):
+#   cp examples/configmap.example.yaml /tmp/reputation-config.yaml
+#   # edit PROVIDER_ADDR and AKASH_NODE, then:
+#   kubectl apply -f /tmp/reputation-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reputation-config
+  namespace: reputation
+data:
+  # Provider whose leases anchor the reputation (anti-abuse lease check).
+  PROVIDER_ADDR: "akash1yourprovideraddressgoeshere0000000000000"
+  # akash node RPC the poller queries via provider-services.
+  AKASH_NODE: "http://your-akash-node-rpc:26657"
+  LEASE_SYNC_INTERVAL: "600s"
+  PGHOST: "reputation-postgres"
+  PGPORT: "5432"
+  LISTEN_ADDR: ":8080"
