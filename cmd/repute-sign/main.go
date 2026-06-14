@@ -24,6 +24,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -154,19 +155,27 @@ func loadKey(flagVal string) (*secp256k1.PrivateKey, error) {
 			hexStr = string(b)
 		}
 	}
-	hexStr = strings.TrimSpace(hexStr)
-	if hexStr == "" {
+	if strings.TrimSpace(hexStr) == "" {
 		return nil, fmt.Errorf("no private key provided (use --key-hex, REPUTE_KEY_HEX, or pipe via stdin)")
 	}
-	raw, err := hex.DecodeString(strings.TrimPrefix(strings.ToLower(hexStr), "0x"))
+	// Extract the 32-byte hex key, tolerating surrounding noise: `keys export`
+	// interleaves a WARNING line and passphrase prompts with the key on the
+	// same stream, so pull the standalone 64-hex token rather than decoding the
+	// whole blob.
+	m := hexKeyRE.FindStringSubmatch(hexStr)
+	if m == nil {
+		return nil, fmt.Errorf("no 64-char hex private key found in input")
+	}
+	raw, err := hex.DecodeString(strings.ToLower(m[1]))
 	if err != nil {
 		return nil, fmt.Errorf("decode key hex: %w", err)
 	}
-	if len(raw) != 32 {
-		return nil, fmt.Errorf("private key must be 32 bytes, got %d", len(raw))
-	}
 	return secp256k1.PrivKeyFromBytes(raw), nil
 }
+
+// hexKeyRE matches a standalone 64-hex-char (32-byte) private key, ignoring any
+// surrounding non-hex text.
+var hexKeyRE = regexp.MustCompile(`(?:^|[^0-9a-fA-F])([0-9a-fA-F]{64})(?:[^0-9a-fA-F]|$)`)
 
 func submit(api string, env envelope) error {
 	body, err := json.Marshal(env)
